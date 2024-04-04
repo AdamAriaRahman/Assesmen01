@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import org.d3if3083.assesmen01.navigation.SetupNavGraph
 import org.d3if3083.assesmen01.ui.theme.Assesmen01Theme
 
 class MainActivity : ComponentActivity() {
@@ -29,8 +30,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Puki")
+                   /* Greeting("Puki")*/
+                    SetupNavGraph()
                 }
+
             }
         }
     }
