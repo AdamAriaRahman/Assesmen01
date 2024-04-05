@@ -4,4 +4,5 @@ import android.health.connect.datatypes.ExerciseRoute
 
 sealed class Screen(val route: String){
     data object Home : Screen("mainScreen")
+    data object About: Screen("aboutSreen")
 }
