@@ -1,58 +1,21 @@
 <resources>
-    <string name="app_name">ourMBTI</string>
-    <string name="count">Count +1</string>
-    <string name="mbti_intro">" Penasaran apakah MBTI mu cocok dengan MBTI lain? (gunakan huruf kapital semua  contoh : '"ISTP"' untuk masukan</string>
-    <string name="mbti_mu">MBTI mu</string>
-    <string name="mbti_lain">MBTI lain</string>
-    <string name="cocokan">Cocokan</string>
-    <string name="tentang_aplikasi">tentang kami</string>
-    <string name="copyright">
-        <b>Selamat Datang di Aplikasi Cocokkan MBTI !</b> \n
-        \n
-        Selamat datang di Aplikasi Cocokkan MBTI, teman yang setia dalam mengeksplorasi
-        dan memahami keunikan kepribadianmu serta bagaimana kamu berinteraksi dengan orang
-        lain berdasarkan teori MBTI (Myers-Briggs Type Indicator).
-        \n
-
-        <b>Apa itu MBTI?</b>
-
-        \n
-
-        MBTI adalah singkatan dari Myers-Briggs Type Indicator, sebuah alat evaluasi yang
-        membagi kepribadian manusia ke dalam 16 tipe berdasarkan empat dimensi utama: Eksroversi (E)
-        atau Introversi (I), Intuisi (N) atau Sensorik (S), Pemikiran (T) atau Perasaan (F), dan
-        Pengamatan (J) atau Persepsi (P). Setiap individu memiliki kecenderungan dalam masing-masing
-        dimensi ini, membentuk pola unik kepribadian.
-
-        \n
-
-        <b>Mengapa Aplikasi Cocokkan MBTI?</b>
-
-        \n
-
-        Aplikasi Cocokkan MBTI didesain untuk membantu pengguna memahami kepribadian mereka secara
-        lebih mendalam dan bagaimana dinamika interaksi dengan orang lain berdasarkan teori MBTI.
-        Dengan mengidentifikasi tipe MBTI Anda dan tipe MBTI orang lain, Anda akan memiliki pemahaman yang
-        lebih baik tentang kekuatan, kelemahan, dan cara terbaik untuk berkomunikasi dan berkolaborasi.
-
-        \n
-
-        <b>Fitur Unggulan</b>
-
-        \n
-
-        1. Cocokkan dengan Orang Lain: Cocokkan tipe MBTI Anda dengan tipe MBTI orang lain untuk
-        mengetahui sejauh mana kesesuaian dan potensi konflik dalam interaksi interpersonal.
-
-        \n
-
-        Jangan ragu untuk menjelajahi aplikasi Cocokkan MBTI dan mulai petualangan untuk menemukan
-        lebih banyak tentang diri Anda dan orang lain berdasarkan teori MBTI. Selamat menikmati
-        pengalaman baru dalam memahami dan menghargai keanekaragaman kepribadian manusia!</string>
-    <string name="kembali">Kembali</string>
-    <string name="bagikan">Bagikan</string>
-    <string name="next">Selanjutnya</string>
-    <string name="peringatan">Isi data terlebih dahulu</string>
-    <string name="bagikan_template">hasil mbti ku %1$s dan mbti%2$s adalah  %3$s</string>
-
+    <string name="app_name">OurMBTI</string>
+    <string name="list_kosong">Balum ada data</string>
+    <string name="x_diklik">%1$s diklik</string>
+    <string name="tambah_hasil">Bagaimana Hasilnya?</string>
+    <string name="tambah_error">Belum bisa tambah catatan</string>
+    <string name="kembali">kembali</string>
+    <string name="tambah_mbti">Tambahkan hasilmu</string>
+    <string name="nama">Nama</string>
+    <string name="mbti">MBTI</string>
+    <string name="simpan">Simpan</string>
+    <string name="edit_hasil">Ubah Hasilmu</string>
+    <string name="invalid">Nama , Mbti,dan Hasil tidak boleh kosong</string>
+    <string name="lainnya">Opsi lainnya</string>
+    <string name="hapus">Hapus data mu</string>
+    <string name="pesan_hapus">Apa anda yakinn untuk menghapus data ini?</string>
+    <string name="tombol_hapus">Hapus</string>
+    <string name="tombol_batal">Batal</string>
+    <string name="list">Tampilan list</string>
+    <string name="grid">Tampilan grid</string>
 </resources>

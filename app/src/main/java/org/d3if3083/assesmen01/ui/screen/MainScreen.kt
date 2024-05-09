@@ -1,56 +1,71 @@
 package org.d3if3083.assesmen01.ui.screen
 
-import android.content.Context
-import android.content.Intent
+import org.d3if3083.assesmen01.R
+import org.d3if3083.assesmen01.database.MbtiDb
+import org.d3if3083.assesmen01.model.Mbti
+import org.d3if3083.assesmen01.navigation.Screen
+import org.d3if3083.assesmen01.ui.theme.Assesmen01Theme
+import org.d3if3083.assesmen01.util.SettingsDataStore
+import org.d3if3083.assesmen01.util.ViewModelFactory
+
+
+
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import org.d3if3083.assesmen01.R
-import org.d3if3083.assesmen01.navigation.Screen
-import org.d3if3083.assesmen01.ui.theme.Assesmen01Theme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavHostController)
-{
+fun MainScreen(navController: NavHostController) {
+
+    val dataStore = SettingsDataStore(LocalContext.current)
+    val showList by dataStore.layoutFlow.collectAsState(true)
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -59,187 +74,159 @@ fun MainScreen(navController: NavHostController)
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.primary
                 ),
-
                 actions = {
-                    IconButton(
-                        onClick = {
-                            navController.navigate(Screen.About.route)
+                    IconButton(onClick = {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            dataStore.saveLayout(!showList)
                         }
-                    ) {
-                        Icon(imageVector = Icons.Outlined.Info ,
-                            contentDescription = stringResource(R.string.tentang_aplikasi),
+                    }) {
+                        Icon(
+                            painter = painterResource(
+                                if ( showList) R.drawable.baseline_grid_view_24
+                                else R.drawable.baseline_view_list_24
+                            ),
+                            contentDescription = stringResource(
+                                if ( showList) R.string.grid
+                                else R.string.list
+                            ),
                             tint = MaterialTheme.colorScheme.primary
                         )
-
                     }
                 }
+
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = {
+                navController.navigate(Screen.FormBaru.route)
+            }) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.tambah_mbti),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     ) { padding ->
-        ScreenContent(Modifier.padding(padding))
+        ScreenContent(showList, Modifier.padding(padding), navController)
     }
 }
 
 @Composable
-fun  ScreenContent(modifier: Modifier) {
-    var mbtiMu by rememberSaveable { mutableStateOf("") }
-    var mbtiLain by rememberSaveable { mutableStateOf("") }
-    var hasilMBTI by rememberSaveable { mutableStateOf("")}
-    var isWarningShown by rememberSaveable { mutableStateOf(false) }
-
+fun ScreenContent(showList: Boolean, modifier: Modifier, navController: NavHostController) {
     val context = LocalContext.current
+    val db = MbtiDb.getInstance(context)
+    val factory = ViewModelFactory(db.dao)
+    val viewModel: MainViewModel = viewModel(factory = factory)
+    val data by viewModel.data.collectAsState()
 
+    if (data.isEmpty()) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = stringResource(R.string.list_kosong))
+        }
+    } else {
+        if (showList) {
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 84.dp)
+            ) {
+                items(data) {
+                    ListItem(dataMbti = it) {
+                        navController.navigate(Screen.FormUbah.withId(it.id))
+                    }
+                    Divider()
+                }
+            }
+        }
+        else {
+            LazyVerticalStaggeredGrid(
+                modifier = modifier.fillMaxSize(),
+                columns = StaggeredGridCells.Fixed(2),
+                verticalItemSpacing = 8.dp,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(8.dp, 8.dp, 8.dp, 84.dp)
+            ) {
+                items(data) {
+                    GridItem( mbti =  it) {
+                        navController.navigate(Screen.FormUbah.withId(it.id))
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+@Composable
+fun ListItem(dataMbti: Mbti, onClick: () -> Unit) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = stringResource(id = R.string.mbti_intro),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.fillMaxWidth()
+            text = dataMbti.namaNya,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontWeight = FontWeight.Bold
         )
-        OutlinedTextField(
-            value = mbtiMu,
-            onValueChange = {mbtiMu = it},
-            label = {Text(text = stringResource(R.string.mbti_mu))},
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        OutlinedTextField(
-            value = mbtiLain,
-            onValueChange = {mbtiLain = it},
-            label = {Text(text = stringResource(R.string.mbti_lain))},
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Done
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Button(
-            onClick = {
-                if (mbtiMu.isNotBlank() && mbtiLain.isNotBlank()) {
-                    hasilMBTI = cocokkanMBTI(mbtiMu, mbtiLain)
-                    isWarningShown = false
-                } else {
-                    isWarningShown = true
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth(0.3f)
-                .padding(top = 24.dp, start = 0.dp)
-                .align(Alignment.CenterHorizontally),
-            contentPadding = PaddingValues(16.dp)
-        ) {
-            Text(text = stringResource(R.string.cocokan))
-        }
-
-        if (isWarningShown) {
-            Text(
-                text = stringResource(R.string.peringatan),
-                color = Color.Red,
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-            )
-        }
-
         Text(
-            text = hasilMBTI,
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .align(Alignment.CenterHorizontally),
-            color = if (hasilMBTI == "Cocok") Color.Blue else Color.Red,
-            fontWeight = FontWeight.Bold,
-            fontSize = 24.sp
+            text = dataMbti.nimNya,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
+        Text(text = dataMbti.kelasNya)
+    }
+}
 
-        Button(
-            onClick = {
-                if (mbtiMu.isNotBlank() && mbtiLain.isNotBlank()) {
-                    shareData(
-                        context = context,
-                        message = context.getString(
-                            R.string.bagikan_template,
-                            mbtiMu, mbtiLain, hasilMBTI
-                        )
-                    )
-                } else {
-                    isWarningShown = true
-                }
-            },
-            modifier = Modifier.padding(top = 8.dp).align(Alignment.CenterHorizontally),
-            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
+@Composable
+fun GridItem(mbti: Mbti, onClick: () -> Unit) {
+    Card (
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        border = BorderStroke(1.dp, Color.Gray)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = stringResource(R.string.bagikan))
+            Text(
+                text = mbti.namaNya,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = mbti.nimNya,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(text = mbti.kelasNya)
         }
     }
 }
-
-
-
-private  fun cocokkanMBTI(mbtiMu: String, mbtiLain: String): String {
-    return if
-            (
-        (mbtiMu.equals("ENFP", ignoreCase = true) && mbtiLain.equals("INTJ", ignoreCase = true)) ||
-        (mbtiMu.equals("INTJ", ignoreCase = true) && mbtiLain.equals("ENFP", ignoreCase = true)) ||
-        (mbtiMu.equals("ISTJ", ignoreCase = true) && mbtiLain.equals("ESTP", ignoreCase = true)) ||
-        (mbtiMu.equals("ESTP", ignoreCase = true) && mbtiLain.equals("ISTJ", ignoreCase = true)) ||
-        (mbtiMu.equals("ISFJ", ignoreCase = true) && mbtiLain.equals("ESFP", ignoreCase = true)) ||
-        (mbtiMu.equals("ESFP", ignoreCase = true) && mbtiLain.equals("ISFJ", ignoreCase = true)) ||
-        (mbtiMu.equals("INFJ", ignoreCase = true) && mbtiLain.equals("ENTJ", ignoreCase = true)) ||
-        (mbtiMu.equals("ENTJ", ignoreCase = true) && mbtiLain.equals("INFJ", ignoreCase = true)) ||
-        (mbtiMu.equals("ISTP", ignoreCase = true) && mbtiLain.equals("ESTP", ignoreCase = true)) ||
-        (mbtiMu.equals("ESTP", ignoreCase = true) && mbtiLain.equals("ISTP", ignoreCase = true)) ||
-        (mbtiMu.equals("ISFJ", ignoreCase = true) && mbtiLain.equals("ESTP", ignoreCase = true)) ||
-        (mbtiMu.equals("INTP", ignoreCase = true) && mbtiLain.equals("ENTP", ignoreCase = true)) ||
-        (mbtiMu.equals("ENTP", ignoreCase = true) && mbtiLain.equals("INTP", ignoreCase = true)) ||
-        (mbtiMu.equals("ESTJ", ignoreCase = true) && mbtiLain.equals("ISTJ", ignoreCase = true)) ||
-        (mbtiMu.equals("ISTJ", ignoreCase = true) && mbtiLain.equals("ESTJ", ignoreCase = true)) ||
-        (mbtiMu.equals("INFP", ignoreCase = true) && mbtiLain.equals("ENFP", ignoreCase = true)) ||
-        (mbtiMu.equals("ENFP", ignoreCase = true) && mbtiLain.equals("INFP", ignoreCase = true)) ||
-        (mbtiMu.equals("ENFJ", ignoreCase = true) && mbtiLain.equals("INFJ", ignoreCase = true)) ||
-        (mbtiMu.equals("INFJ", ignoreCase = true) && mbtiLain.equals("ENFJ", ignoreCase = true)) ||
-        (mbtiMu.equals("ESFJ", ignoreCase = true) && mbtiLain.equals("ISFJ", ignoreCase = true)) ||
-        (mbtiMu.equals("ISFJ", ignoreCase = true) && mbtiLain.equals("ESFJ", ignoreCase = true)) ||
-        (mbtiMu.equals("ISFP", ignoreCase = true) && mbtiLain.equals("ESFP", ignoreCase = true)) ||
-        (mbtiMu.equals("ESFP", ignoreCase = true) && mbtiLain.equals("ISFP", ignoreCase = true))
-
-        ) {
-        "Cocok"
-    } else {
-        "Kurang cocok"
-    }
-}
-
-private  fun shareData(context: Context, message: String) {
-    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/plain"
-        putExtra(Intent.EXTRA_TEXT, message)
-    }
-    if (shareIntent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(shareIntent)
-    }
-}
-
-
 
 
 @Preview(showBackground = true)
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
-fun ScreenPreview() {
+fun GreetingPreview() {
     Assesmen01Theme {
         MainScreen(rememberNavController())
     }
