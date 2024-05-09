@@ -1,7 +1,10 @@
 package org.d3if3083.assesmen01.ui.screen
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,17 +28,18 @@ import org.d3if3083.assesmen01.ui.theme.Assesmen01Theme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutScreen(navController: NavHostController)
-{
+fun AboutScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                     IconButton(onClick = {navController.popBackStack() }) {
-                         Icon(imageVector = Icons.Filled.ArrowBack,
-                             contentDescription = stringResource(R.string.kembali),
-                             tint = MaterialTheme.colorScheme.primary)
-                     }
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.kembali),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 },
                 title = {
                     Text(text = stringResource(id = R.string.tentang_aplikasi))
@@ -47,12 +51,16 @@ fun AboutScreen(navController: NavHostController)
             )
         }
     ) { padding ->
-
-        Text(
-            text = stringResource(R.string.copyright),
+        Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp))
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = stringResource(R.string.copyright),
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     }
 }
 

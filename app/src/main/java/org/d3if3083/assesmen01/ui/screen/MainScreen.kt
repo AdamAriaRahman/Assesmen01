@@ -87,6 +87,7 @@ fun  ScreenContent(modifier: Modifier) {
     var mbtiMu by rememberSaveable { mutableStateOf("") }
     var mbtiLain by rememberSaveable { mutableStateOf("") }
     var hasilMBTI by rememberSaveable { mutableStateOf("")}
+    var isWarningShown by rememberSaveable { mutableStateOf(false) }
 
     val context = LocalContext.current
 
@@ -105,7 +106,6 @@ fun  ScreenContent(modifier: Modifier) {
             value = mbtiMu,
             onValueChange = {mbtiMu = it},
             label = {Text(text = stringResource(R.string.mbti_mu))},
-
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -118,7 +118,6 @@ fun  ScreenContent(modifier: Modifier) {
             value = mbtiLain,
             onValueChange = {mbtiLain = it},
             label = {Text(text = stringResource(R.string.mbti_lain))},
-
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -128,42 +127,67 @@ fun  ScreenContent(modifier: Modifier) {
         )
 
         Button(
-            onClick = { hasilMBTI = cocokkanMBTI(mbtiMu,mbtiLain)},
+            onClick = {
+                if (mbtiMu.isNotBlank() && mbtiLain.isNotBlank()) {
+                    hasilMBTI = cocokkanMBTI(mbtiMu, mbtiLain)
+                    isWarningShown = false
+                } else {
+                    isWarningShown = true
+                }
+            },
             modifier = Modifier
-                .fillMaxWidth(0.4f)
-                .padding(top = 24.dp)
+                .fillMaxWidth(0.3f)
+                .padding(top = 24.dp, start = 0.dp)
                 .align(Alignment.CenterHorizontally),
-            contentPadding = PaddingValues(16.dp))
-        {
-           Text(text = stringResource(R.string.cocokan))
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            Text(text = stringResource(R.string.cocokan))
         }
-            Text(
-                text = hasilMBTI,
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .align(Alignment.CenterHorizontally),
-                color = if (hasilMBTI == "Cocok") Color.Blue else Color.Red,
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
 
+        if (isWarningShown) {
+            Text(
+                text = stringResource(R.string.peringatan),
+                color = Color.Red,
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally)
             )
+        }
+
+        Text(
+            text = hasilMBTI,
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .align(Alignment.CenterHorizontally),
+            color = if (hasilMBTI == "Cocok") Color.Blue else Color.Red,
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp
+        )
+
         Button(
             onClick = {
-                      shareData(
-                          context = context,
-                          message = context.getString(R.string.bagikan_template,
-                              mbtiMu, mbtiLain,hasilMBTI)
-                      )
+                if (mbtiMu.isNotBlank() && mbtiLain.isNotBlank()) {
+                    shareData(
+                        context = context,
+                        message = context.getString(
+                            R.string.bagikan_template,
+                            mbtiMu, mbtiLain, hasilMBTI
+                        )
+                    )
+                } else {
+                    isWarningShown = true
+                }
             },
-            modifier = Modifier.padding(top = 8.dp). align(Alignment.CenterHorizontally),
+            modifier = Modifier.padding(top = 8.dp).align(Alignment.CenterHorizontally),
             contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
-
-            ) {
-                Text(text = stringResource(R.string.bagikan))
-
+        ) {
+            Text(text = stringResource(R.string.bagikan))
         }
     }
 }
+
+
 
 private  fun cocokkanMBTI(mbtiMu: String, mbtiLain: String): String {
     return if

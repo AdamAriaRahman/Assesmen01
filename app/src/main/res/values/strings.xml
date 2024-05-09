@@ -51,6 +51,8 @@
         pengalaman baru dalam memahami dan menghargai keanekaragaman kepribadian manusia!</string>
     <string name="kembali">Kembali</string>
     <string name="bagikan">Bagikan</string>
+    <string name="next">Selanjutnya</string>
+    <string name="peringatan">Isi data terlebih dahulu</string>
     <string name="bagikan_template">hasil mbti ku %1$s dan mbti%2$s adalah  %3$s</string>
 
 </resources>
